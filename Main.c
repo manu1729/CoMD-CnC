@@ -407,7 +407,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     *t = totalBoxes;
     cncPut_TBoxes(t_handle, 0, context);
 
-    cncPrescribe_generateForceTagsStep(totalBoxes, 1, context);
+   // cncPrescribe_generateForceTagsStep(1, context);
 
 
     // creating Nbs

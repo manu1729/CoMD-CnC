@@ -19,16 +19,20 @@
 int force(SimFlat* s, int i, int iter, struct box *b);
 int KinEnergy(SimFlat* s, int i, int iter, struct box *b);
 
-void forceStep (int i, int iter, BItem b1, SFItem sf,  ITItem it, Context *context) {
+void forceStep (int i, int iter, BItem b1, Context *context) {
 
-   // PRINTF("forceStep %d, %d\n", i, iter);
-    struct box *b = b1.item;
-    SimFlat *s = sf.item;
+    if (i == 0)
+    PRINTF("forceStep %d, %d\n", i, iter);
 
-    force(sf.item,i, iter, b);
-    KinEnergy(sf.item, i, iter, b);
-    b->i = i;
-    cncPut_B(b1.handle, i, 4, 0, iter, context);
+    // populate later -- prescribe first neighbor
+    if (1) {
+        int r = rand() % 1728;
+        int k = 0;
+        if (i==0)
+        PRINTF("force nbr %d\n",r);
+        cncPrescribe_computeForcefromNeighborsStep(i, r, k, iter, context);
+    }
+
 }
 
 

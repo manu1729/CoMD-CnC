@@ -39,6 +39,10 @@ struct myReduction {
     double eKin;
 };
 
+struct atomInfo {
+    int id;
+};
+
 struct info allUI[1728*27];
 
 ////////////////// declaring all the structures for the stub - end //////////////////
