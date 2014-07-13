@@ -79,7 +79,7 @@ void initSubsystems(void) {
    freopen("testOut.txt","w",screenOut);
 #endif
 
-   yamlBegin();
+  // yamlBegin();
 }
 
 /// decide whether to get LJ or EAM potentials
@@ -340,18 +340,36 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     initSubsystems();
 
     Command cmd = parseCommandLine(argc, argv);
-    printCmdYaml(yamlFile, &cmd);
+//    printCmdYaml(yamlFile, &cmd);
     printCmdYaml(screenOut, &cmd);
 
     SimFlat* sim = initSimulationNew(cmd, context);
-    printSimulationDataYaml(yamlFile, sim);
-    printSimulationDataYaml(screenOut, sim);
+//    printSimulationDataYaml(yamlFile, sim);
+//    printSimulationDataYaml(screenOut, sim);
 
     printf("Initial validation ... \n");
 
     Validate* validate = initValidate(sim);
 
     // This is the CoMD main loop
+
+    // creating IT
+    struct cmdInfo *ci;
+    cncHandle_t ci_handle = cncCreateItem_CMD(&ci, sizeof(struct cmdInfo));
+    ci->nSteps = cmd.nSteps;
+    ci->nx = cmd.nx; ci->ny = cmd.ny; ci->nz = cmd.nz;
+    ci->xproc = cmd.xproc; ci->yproc = cmd.yproc; ci->zproc = cmd.zproc;
+    ci->printRate = cmd.printRate;
+    ci->dt = sim->dt;
+    if (cmd.lat < 0)
+        ci->lat =  sim->pot->lat;
+    else
+        ci->lat = cmd.lat;
+    ci->temperature = cmd.temperature;
+    ci->initialDelta = cmd.initialDelta;
+    printf("lat = %lf\n", ci->lat);
+    cncPut_CMD(ci_handle, 1, context);
+
     const int nSteps = sim->nSteps;
     const int printRate = sim->printRate;
     int iStep = 0;
@@ -360,8 +378,8 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     /////////////////
  //   totalBoxes = sim->boxes->nLocalBoxes;
  //   MAXIT = nSteps;
-    totalBoxes = 1728;
-    printf("Number of iterations == %d\n", nSteps);
+    totalBoxes = sim->boxes->nLocalBoxes;
+    printf("Number of iterations %d, number of boxes %d\n", nSteps, totalBoxes);
     MAXIT = nSteps+1;
     /////////////////
     maxAtomsPerBox = 60;
@@ -374,23 +392,32 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 
     int i,j;
     struct box *b;
+    CnCAtoms *atms;
+
+    printf("-----------------------------------------\n");
     for (i=0; i<totalBoxes; i++){
-        cncHandle_t db_handle = cncCreateItem_B(&b, sizeof(struct box));
+        cncHandle_t b_handle = cncCreateItem_B(&b, 1);
+        cncHandle_t atms_handle = cncCreateItem_ATOMS(&atms, 1);
+        if (i==0)
+            printf("size of box = %d, %d\n", sizeof(struct box), sizeof(CnCAtoms));
         b->i = i;
         b->ePot = 0.0;
         b->eKin = 0.0;
-        cncPut_B(db_handle, i, 0, 0, 1, context);
+        cncPut_B(b_handle, i, 0, 0, 1, context);
+        cncPut_ATOMS(atms_handle, i, 0, 0, 1, context);
+
+//        printf("====%d\n", i);
         cncPrescribe_advanceVelocityStep(i, 1, context);
         cncPrescribe_reduceStep(i, 1, context);
     }
 
     int *s;
-    cncHandle_t s_handle = cncCreateItem_s(&s, sizeof(int));
+    cncHandle_t s_handle = cncCreateItem_s(&s, 1);
     *s = 0;
     cncPut_s(s_handle, 0, 1, context);
 
     struct myReduction *rd;
-    cncHandle_t rd_handle = cncCreateItem_redc(&rd, sizeof(int));
+    cncHandle_t rd_handle = cncCreateItem_redc(&rd, 1);
     rd->i = 0;
     rd->ePot = 0.0;
     rd->eKin = 0.0;
@@ -420,7 +447,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 }
 
 
-void cncEnvOut(int i, int iter, BItem B, redcItem r, Context *context) {
+void cncEnvOut(int i, int iter, BItem B, ATOMSItem a, redcItem r, Context *context) {
   //  PRINTF("Box %d, iteration %d ends\n", i, iter);
     real_t p,k,t;
     p = r.item->ePot/32000;

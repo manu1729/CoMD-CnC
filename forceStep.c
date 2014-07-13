@@ -19,7 +19,7 @@
 int force(SimFlat* s, int i, int iter, struct box *b);
 int KinEnergy(SimFlat* s, int i, int iter, struct box *b);
 
-void forceStep (int i, int iter, BItem b1, Context *context) {
+void forceStep (int i, int iter, BItem b1, ATOMSItem a, Context *context) {
 
     if (i == 0)
     PRINTF("forceStep %d, %d\n", i, iter);

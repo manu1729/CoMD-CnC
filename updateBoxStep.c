@@ -1,6 +1,6 @@
 #include "Common.h"
 
-void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
+void updateBoxStep (int i, int k, int iter, BItem b1, ATOMSItem a, Context *context) {
     if (i==0)
      PRINTF("UpdateBox %d, %d, %d\n", i, k, iter);
      int r = rand() % 1728;
@@ -8,7 +8,7 @@ void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
      PRINTF("Neighbor %d\n", r);
 
      struct atomInfo *ai;
-     cncHandle_t db_handle = cncCreateItem_AtomInfo(&ai, sizeof(struct atomInfo));
+     cncHandle_t db_handle = cncCreateItem_AtomInfo(&ai, 1);
      ai->id = -1;
      cncPut_AtomInfo(db_handle, i, r, iter, context);
 

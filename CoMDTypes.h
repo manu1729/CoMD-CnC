@@ -18,14 +18,61 @@ struct info;
 #include "haloExchange.h"
 
 
-////////////////// declaring all the structures for the stub - start //////////////////
+////////////////// declaring CnC data structures - start //////////////////
 struct box {
     int i;  // box number
     double ePot;
     double eKin;
-    int n;  // total number of data elements n < 10
+    int nAtoms;
+    real3 localMin;
+    real3 localMax;
+    int nLocalBoxes;
+    int gridSize[3];
+    real3 boxSize;
+    real3 invBoxSize;
+    struct AtmsNew {
+        int gid[MAXATOMS];
+        int species[MAXATOMS];
+        int nLocal;
+        int nGlobal;
+        real3 r[MAXATOMS];
+        real3 p[MAXATOMS];
+        real3 U[MAXATOMS];
+
+    } CnCAtoms1;
+
 };
 
+typedef struct Atms {
+/*    int gid;
+    int species;
+    real3 r;
+    real3 p;
+    real3 U;
+
+    int gid[MAXATOMS];
+    int species[MAXATOMS];
+    int nLocal;
+    int nGlobal;
+    real3 r[MAXATOMS];
+    real3 p[MAXATOMS];
+    real3 U[MAXATOMS];
+ */
+    int i;
+} CnCAtoms;
+
+struct cmdInfo {
+    int nx,ny,nz;
+    int xproc,yproc,zproc;
+    int nSteps;
+    int printRate;
+    real_t dt;
+    real_t lat;
+    real_t temperature;
+    real_t initialDelta;
+    int nBoxes;
+
+};
 struct info {
     int n;  // number of atoms
 //    int data[10];

@@ -1,7 +1,7 @@
 #include "Common.h"
 
 
-void reduceStep (int i, int iter, BItem b,  redcItem rd, ITItem it, TBoxesItem tb, Context *context) {
+void reduceStep (int i, int iter, BItem b, ATOMSItem a, redcItem rd, ITItem it, TBoxesItem tb, Context *context) {
 //    PRINTF("reducesStep %d, %d\n", i, iter);
     struct myReduction *r = rd.item;
     struct box *b1 = b.item;
@@ -13,9 +13,12 @@ void reduceStep (int i, int iter, BItem b,  redcItem rd, ITItem it, TBoxesItem t
     if ((i < tb.item -1) && ( iter < it.item-1)) {
         cncPut_redc(rd.handle, i+1, iter, context);
         cncPut_B(b.handle, i, 0, 0, iter+1, context);
+        cncPut_ATOMS(a.handle, i, 0, 0, iter+1, context);
+
     }
     if ((i == tb.item -1) && (iter < (it.item -1))) {
         cncPut_B(b.handle, i, 0, 0, iter+1, context);
+        cncPut_ATOMS(a.handle, i, 0, 0, iter+1, context);
         if (!(iter % 10)) {
             real_t t,p,k;
             p = r->ePot/32000;
@@ -46,6 +49,7 @@ void reduceStep (int i, int iter, BItem b,  redcItem rd, ITItem it, TBoxesItem t
         b1->ePot = 0;// b.item->ePot;
         b1->eKin = 0;//b.item->eKin;
         cncPut_B(b.handle, i, 5, 0, iter, context);
+        cncPut_ATOMS(a.handle, i, 5, 0, iter, context);
  //       printf("%d,%d\n", i,iter);
     }
 

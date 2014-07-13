@@ -24,12 +24,13 @@ static void computeVcm(SimFlat* s, real_t vcm[3]);
 /// initial atom positions and momenta.
 Atoms* initAtoms(LinkCell* boxes, Context *context)
 {
-  // Atoms* atoms = comdMalloc(sizeof(Atoms));
+   Atoms* atoms = comdMalloc(sizeof(Atoms));
 
+    /*
    Atoms *atoms;
    cncHandle_t a_handle = cncCreateItem_ATOMS(&atoms,sizeof(Atoms));
    cncPut_ATOMS(a_handle, 1, context);
-
+*/
 
    int maxTotalAtoms = MAXATOMS*boxes->nTotalBoxes;
 
