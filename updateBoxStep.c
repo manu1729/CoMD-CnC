@@ -4,6 +4,8 @@
 
 void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
 
+    //printf("updateBoxStep %d\n", i);
+
     struct box *b = b1.item;
     struct atomInfo *ai;
     cncHandle_t db_handle = cncCreateItem_AtomInfo(&ai, 1);

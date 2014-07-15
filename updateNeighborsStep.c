@@ -5,8 +5,8 @@ void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai1, BItem b1, Co
     struct atomInfo *ai = ai1.item;
     struct box *b = b1.item;
 
-    if (i==0)
-    PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, iter);
+//    if (i==0)
+//    PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, iter);
 
 
     // move the atoms from "atomInfo" into "b"

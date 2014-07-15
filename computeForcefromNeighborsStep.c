@@ -22,8 +22,9 @@ void computeForcefromNeighborsStep (int i, int j, int k, int iter, BItem b1, BIt
 //            printf("Neighbor %d is %d\n",k+1, nbrBoxes[k+1]);
         cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[k+1], k+1, iter, context);
     } else {
-        if (i==0)
-            PRINTF("k====26\n");
+ //       if (i==0) {
+ //           PRINTF("k====26, force = %lf\n", b->ePot);
+//        }
         cncPut_B(b1.handle, i, 4, 0, iter, context);
     }
 }
@@ -34,6 +35,43 @@ int force(int i, int iter, int k, struct box *b, struct box *bn) {
    real_t epsilon = b->potEpsilon;
    real_t rCut = b->potCutoff;
    real_t rCut2 = rCut*rCut;
+
+
+   ////////////////////////////////////////////////
+   int ix,iy,iz,jx,jy,jz;
+   getTuple1(b, b->i, &ix, &iy, &iz);
+   getTuple1(bn, bn->i, &jx, &jy, &jz);
+/*   if (i == 0) {
+       printf("%d: (%d, %d, %d)\n", b->i, ix,iy,iz);
+       printf("%d: (%d, %d, %d)\n", bn->i, jx,jy,jz);
+   }
+*/
+   real_t pbc[3];
+   pbc[0] = pbc[1] = pbc[2] = 0.0;
+   if ((ix-jx) == (b->gridSize[0]-1))
+       pbc[0] = 1.0;
+   else if ((ix-jx) == -(b->gridSize[0]-1))
+       pbc[0] = -1.0;
+
+   if ((iy-jy) == (b->gridSize[1]-1))
+       pbc[1] = 1.0;
+   else if ((iy-jy) == -(b->gridSize[1]-1))
+       pbc[1] = -1.0;
+
+   if ((iz-jz) == (b->gridSize[2]-1))
+       pbc[2] = 1.0;
+   else if ((iz-jz) == -(b->gridSize[2]-1))
+       pbc[2] = -1.0;
+
+   real3 shift;
+
+   shift[0] = pbc[0] * b->globalExtent[0];
+   shift[1] = pbc[1] * b->globalExtent[1];
+   shift[2] = pbc[2] * b->globalExtent[2];
+
+
+   ////////////////////////////////////////////////
+
 
    // zero forces and energy
    real_t ePot = b->ePot;
@@ -58,8 +96,6 @@ int force(int i, int iter, int k, struct box *b, struct box *bn) {
 
    int jBox = bn->i;
 
-//   if (i == 0)
-//   printf("%d::%d, %d::%d, %lf\n", iBox, nIBox, jBox, bn->nAtoms, ePot);
    assert(jBox >= 0);
 
    int nJBox = bn->nAtoms;
@@ -69,22 +105,26 @@ int force(int i, int iter, int k, struct box *b, struct box *bn) {
        return 0;
    }
 
+   real_t ri=0.0, rj = 0.0;
    // loop over atoms in iBox
    for (int iOff = 0; iOff < nIBox; iOff++) {
        int iId = b->atoms.gid[iOff];
+
+       ri += b->atoms.r[iOff][0] + b->atoms.r[iOff][1] + b->atoms.r[iOff][2];
+
+       rj = 0.0;
        // loop over atoms in jBox
        for (int jOff = 0; jOff < nJBox; jOff++) {
            real_t dr[3];
            int jId = bn->atoms.gid[jOff];
 
-
-
+           rj += bn->atoms.r[jOff][0] + bn->atoms.r[jOff][1] + bn->atoms.r[jOff][2] +shift[0]+shift[1]+shift[2];
 
            if (jBox < b->nLocalBoxes && jId == iId)
                continue; // don't double count local-local pairs.
            real_t r2 = 0.0;
            for (int m = 0; m < 3; m++) {
-               dr[m] = b->atoms.r[iOff][m] - bn->atoms.r[jOff][m];
+               dr[m] = b->atoms.r[iOff][m] - bn->atoms.r[jOff][m]-(shift[m]); ////////////////ToDo  need to check shift!!!!
                r2 += dr[m] * dr[m];
            }
 
@@ -108,6 +148,10 @@ int force(int i, int iter, int k, struct box *b, struct box *bn) {
        } // loop over atoms in jBox
    } // loop over atoms in iBox
 
+/*
+   if (i==0)
+       printf("j = %d, nj = %d, sumri = %lf, sumrj = %lf\n", jBox, nJBox, ri, rj);
+*/
    if (k == 26) {
        ePot = ePot * 4.0 * epsilon;
        b->ePot = ePot;

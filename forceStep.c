@@ -29,8 +29,8 @@ int getNeighborBoxes1(struct box *b, int iBox, int* nbrBoxes);
 void forceStep (int i, int iter, BItem b1, Context *context) {
 
     struct box *b = b1.item;
-    if (i == 0)
-    PRINTF("forceStep %d, %d\n", i, iter);
+//    if (i == 0)
+//    PRINTF("forceStep %d, %d\n", i, iter);
 
     int nbrBoxes[27];
 
@@ -44,15 +44,7 @@ void forceStep (int i, int iter, BItem b1, Context *context) {
     b->ePot = 0.0;
     b->eKin = 0.0;
 
-    // populate later -- prescribe first neighbor
-    if (1) {
-        int r = rand() % 1728;
-        int k = 0;
- //       if (i==0)
- //       PRINTF("force nbr %d\n",r);
-        cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[k], k, iter, context);
-    }
-
+    cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[0], 0, iter, context);
 }
 
 void getTuple1(struct box *b, int iBox, int* ixp, int* iyp, int* izp) {

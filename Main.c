@@ -397,6 +397,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 //    printf("======== %lf, %lf\n", sim->ePotential/32000,sim->eKinetic/32000);
 
     int sum = 0;
+    real_t sump = 0.0, sumr = 0.0;
     printf("-----------------------------------------\n");
     for (i=0; i<totalBoxes; i++){
         cncHandle_t b_handle = cncCreateItem_B(&b, 1);
@@ -407,11 +408,13 @@ void cncEnvIn(int argc, char** argv, Context *context) {
             b->atoms.p[ii][0] = sim->atoms->p[iOff][0];
             b->atoms.p[ii][1] = sim->atoms->p[iOff][1];
             b->atoms.p[ii][2] = sim->atoms->p[iOff][2];
+            sump += b->atoms.p[ii][0]+b->atoms.p[ii][1]+b->atoms.p[ii][2];
 
             // copy position
             b->atoms.r[ii][0] = sim->atoms->r[iOff][0];
             b->atoms.r[ii][1] = sim->atoms->r[iOff][1];
             b->atoms.r[ii][2] = sim->atoms->r[iOff][2];
+            sumr += b->atoms.r[ii][0]+b->atoms.r[ii][1]+b->atoms.r[ii][2];
 
             // copy force
             b->atoms.f[ii][0] = sim->atoms->f[iOff][0];
@@ -457,6 +460,10 @@ void cncEnvIn(int argc, char** argv, Context *context) {
         b->invBoxSize[2] = sim->boxes->invBoxSize[2];
         b->nAtoms = sim->boxes->nAtoms[i];
 
+        b->globalExtent[0] = sim->domain->globalExtent[0];
+        b->globalExtent[1] = sim->domain->globalExtent[1];
+        b->globalExtent[2] = sim->domain->globalExtent[2];
+
         // initialize ljPotential
         b->potSigma = 2.315;
         b->potEpsilon = 0.167;
@@ -473,7 +480,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
         cncPrescribe_reduceStep(i, 1, context);
     }
 
-    printf("Total number of atoms == %d\n", sum);
+    printf("Total atoms: %d, Sum Pot: %lf, Sum R: %lf\n", sum, sump, sumr);
 
     int *s;
     cncHandle_t s_handle = cncCreateItem_s(&s, 1);

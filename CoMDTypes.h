@@ -38,6 +38,7 @@ struct box {
     real3 localMax;
     int nLocalBoxes;
     int gridSize[3];
+    real3 globalExtent;
     real3 boxSize;
     real3 invBoxSize;
     SpeciesData species[1];

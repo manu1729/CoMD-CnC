@@ -7,8 +7,8 @@ void generateDataforForceStep( int i, int iter, BItem B0, Context *context){
 
     struct box *b = B0.item;
 
-    if (i==0)
-    printf("generateDataforForceStep %d, %d\n",i,  B0.item->i);
+ //   if (i==0)
+ //   printf("generateDataforForceStep %d, %d\n",i,  B0.item->i);
 
     // sort the box -- required as updates are not ordered
     sortAtomsInCell1(b);
