@@ -113,3 +113,87 @@ int getNeighborBoxes1(struct box *b, int iBox, int* nbrBoxes) {
    return count;
 }
 
+int getBoxFromCoord(struct box* boxes, real_t rr[3]) {
+   const real_t* localMin = boxes->localMin; // alias
+   const real_t* localMax = boxes->localMax; // alias
+   const int*    gridSize = boxes->gridSize; // alias
+   int ix = (int)(floor((rr[0] - localMin[0])*boxes->invBoxSize[0]));
+   int iy = (int)(floor((rr[1] - localMin[1])*boxes->invBoxSize[1]));
+   int iz = (int)(floor((rr[2] - localMin[2])*boxes->invBoxSize[2]));
+
+
+   // For each axis, if we are inside the local domain, make sure we get
+   // a local link cell.  Otherwise, make sure we get a halo link cell.
+   if (rr[0] < localMax[0])
+   {
+      if (ix == gridSize[0]) ix = gridSize[0] - 1;
+   }
+   else
+      ix = 0; // assign to halo cell
+   if (rr[1] < localMax[1])
+   {
+      if (iy == gridSize[1]) iy = gridSize[1] - 1;
+   }
+   else
+      iy = 0;
+   if (rr[2] < localMax[2])
+   {
+      if (iz == gridSize[2]) iz = gridSize[2] - 1;
+   }
+   else
+      iz = 0;
+
+   return getBoxFromTuple1(boxes, ix, iy, iz);
+}
+
+
+void sortAtomsInCell1(struct box *b) {
+   int nAtoms = b->nAtoms;
+
+
+   AMsg tmp[nAtoms];
+
+   int begin = 0;
+   int end = nAtoms;
+   for (int ii=begin, iTmp=0; ii<end; ++ii, ++iTmp)
+   {
+      tmp[iTmp].gid  = b->atoms.gid[ii];
+      tmp[iTmp].type = b->atoms.iSpecies[ii];
+      tmp[iTmp].rx =   b->atoms.r[ii][0];
+      tmp[iTmp].ry =   b->atoms.r[ii][1];
+      tmp[iTmp].rz =   b->atoms.r[ii][2];
+      tmp[iTmp].px =   b->atoms.p[ii][0];
+      tmp[iTmp].py =   b->atoms.p[ii][1];
+      tmp[iTmp].pz =   b->atoms.p[ii][2];
+   }
+   qsort(&tmp, nAtoms, sizeof(AMsg), sortAtomsById1);
+   for (int ii=begin, iTmp=0; ii<end; ++ii, ++iTmp)
+   {
+      b->atoms.gid[ii]   = tmp[iTmp].gid;
+      b->atoms.iSpecies[ii] = tmp[iTmp].type;
+      b->atoms.r[ii][0]  = tmp[iTmp].rx;
+      b->atoms.r[ii][1]  = tmp[iTmp].ry;
+      b->atoms.r[ii][2]  = tmp[iTmp].rz;
+      b->atoms.p[ii][0]  = tmp[iTmp].px;
+      b->atoms.p[ii][1]  = tmp[iTmp].py;
+      b->atoms.p[ii][2]  = tmp[iTmp].pz;
+   }
+
+}
+
+///  A function suitable for passing to qsort to sort atoms by gid.
+///  Because every atom in the simulation is supposed to have a unique
+///  id, this function checks that the atoms have different gids.  If
+///  that assertion ever fails it is a sign that something has gone
+///  wrong elsewhere in the code.
+int sortAtomsById1(const void* a, const void* b) {
+   int aId = ((AMsg*) a)->gid;
+   int bId = ((AMsg*) b)->gid;
+   assert(aId != bId);
+
+   if (aId < bId)
+      return -1;
+   return 1;
+}
+
+

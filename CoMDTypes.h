@@ -105,8 +105,24 @@ struct myReduction {
 };
 
 struct atomInfo {
-    int id;
+    int gid[MAXATOMS];
+    int iSpecies[MAXATOMS];
+    real3 r[MAXATOMS];
+    real3 p[MAXATOMS];
+    real3 f[MAXATOMS];
+    real_t U[MAXATOMS];
+    int nbrs[MAXATOMS][2]; // neighbor corresponding to each atom
+    int n; // total number of atoms to be moved
 };
+
+typedef struct AMsgSt
+{
+   int gid;
+   int type;
+   real_t rx, ry, rz;
+   real_t px, py, pz;
+} AMsg;
+
 
 struct info allUI[1728*27];
 

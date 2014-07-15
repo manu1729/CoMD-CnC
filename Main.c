@@ -394,15 +394,13 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     int i,j;
     struct box *b;
 
-    printf("======== %lf, %lf\n", sim->ePotential/32000,sim->eKinetic/32000);
+//    printf("======== %lf, %lf\n", sim->ePotential/32000,sim->eKinetic/32000);
 
     int sum = 0;
-    real_t fr = 0.0;
     printf("-----------------------------------------\n");
     for (i=0; i<totalBoxes; i++){
         cncHandle_t b_handle = cncCreateItem_B(&b, 1);
 
-        fr = 0.0;
         // Copy initialization data into CnC related data structures
         for (int iOff=MAXATOMS*i,ii=0; ii<sim->boxes->nAtoms[i]; ii++,iOff++) {
             // copy velocity
@@ -465,8 +463,6 @@ void cncEnvIn(int argc, char** argv, Context *context) {
         b->potCutoff = 2.5*b->potSigma;
         b->potMass = 63.55 * amuToInternalMass;
 
-
-  //      printf("%d, %d\n", i, b->nAtoms);
 
         sum += b->nAtoms;
 

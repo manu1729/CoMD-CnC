@@ -16,10 +16,6 @@ void advanceVelocityStep (int i, int iter, BItem b1, Context *context) {
        // advance position
        int iSpecies = b->atoms.iSpecies[iOff];
        real_t invMass = 1.0/b->species[iSpecies].mass; ////////////////////////
- //      if (i==0) {
- //          printf("sssssssss == %d, %lf\n", iSpecies, b->species[iSpecies].mass);
- //      }
-
        b->atoms.r[iOff][0] += b->dt*b->atoms.p[iOff][0]*invMass;
        b->atoms.r[iOff][1] += b->dt*b->atoms.p[iOff][1]*invMass;
        b->atoms.r[iOff][2] += b->dt*b->atoms.p[iOff][2]*invMass;
