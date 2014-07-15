@@ -1,6 +1,6 @@
 #include "Common.h"
 
-void updateBoxStep (int i, int k, int iter, BItem b1, ATOMSItem a, Context *context) {
+void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
     if (i==0)
      PRINTF("UpdateBox %d, %d, %d\n", i, k, iter);
      int r = rand() % 1728;

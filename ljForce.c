@@ -233,6 +233,7 @@ int ljForce(SimFlat* s)
                   s->atoms->f[jOff][m] += dr[m]*fr;
                }
             } // loop over atoms in jBox
+
          } // loop over atoms in iBox
       } // loop over neighbor boxes
    } // loop over local boxes in system

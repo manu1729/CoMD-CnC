@@ -61,6 +61,7 @@
 #include "ljForce.h"
 #include "timestep.h"
 #include "haloExchange.h"
+#include "constants.h"
 
 
 #include "Context.h"
@@ -355,7 +356,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 
     // creating IT
     struct cmdInfo *ci;
-    cncHandle_t ci_handle = cncCreateItem_CMD(&ci, sizeof(struct cmdInfo));
+    cncHandle_t ci_handle = cncCreateItem_CMD(&ci, 1);
     ci->nSteps = cmd.nSteps;
     ci->nx = cmd.nx; ci->ny = cmd.ny; ci->nz = cmd.nz;
     ci->xproc = cmd.xproc; ci->yproc = cmd.yproc; ci->zproc = cmd.zproc;
@@ -392,24 +393,91 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 
     int i,j;
     struct box *b;
-    CnCAtoms *atms;
 
+    printf("======== %lf, %lf\n", sim->ePotential/32000,sim->eKinetic/32000);
+
+    int sum = 0;
+    real_t fr = 0.0;
     printf("-----------------------------------------\n");
     for (i=0; i<totalBoxes; i++){
         cncHandle_t b_handle = cncCreateItem_B(&b, 1);
-        cncHandle_t atms_handle = cncCreateItem_ATOMS(&atms, 1);
-        if (i==0)
-            printf("size of box = %d, %d\n", sizeof(struct box), sizeof(CnCAtoms));
-        b->i = i;
+
+        fr = 0.0;
+        // Copy initialization data into CnC related data structures
+        for (int iOff=MAXATOMS*i,ii=0; ii<sim->boxes->nAtoms[i]; ii++,iOff++) {
+            // copy velocity
+            b->atoms.p[ii][0] = sim->atoms->p[iOff][0];
+            b->atoms.p[ii][1] = sim->atoms->p[iOff][1];
+            b->atoms.p[ii][2] = sim->atoms->p[iOff][2];
+
+            // copy position
+            b->atoms.r[ii][0] = sim->atoms->r[iOff][0];
+            b->atoms.r[ii][1] = sim->atoms->r[iOff][1];
+            b->atoms.r[ii][2] = sim->atoms->r[iOff][2];
+
+            // copy force
+            b->atoms.f[ii][0] = sim->atoms->f[iOff][0];
+            b->atoms.f[ii][1] = sim->atoms->f[iOff][1];
+            b->atoms.f[ii][2] = sim->atoms->f[iOff][2];
+
+            // copy energy
+            b->atoms.U[ii] = sim->atoms->U[iOff];
+
+            b->atoms.iSpecies[ii] = sim->atoms->iSpecies[iOff];
+            b->atoms.gid[ii] = sim->atoms->gid[iOff];
+
+        }
+
+        // copy other data structures of "atoms"
+        b->atoms.nLocal = sim->atoms->nLocal;
+        b->atoms.nGlobal = sim->atoms->nGlobal;
+        b->species[0].atomicNo = sim->species[0].atomicNo;
+        b->species[0].mass = sim->species[0].mass;
+        strcpy(b->species[0].name, sim->species[0].name);
+
+
+        // initialize other "box" related structures
         b->ePot = 0.0;
         b->eKin = 0.0;
-        cncPut_B(b_handle, i, 0, 0, 1, context);
-        cncPut_ATOMS(atms_handle, i, 0, 0, 1, context);
+        b->dt = sim->dt;
+        b->gridSize[0] = sim->boxes->gridSize[0];
+        b->gridSize[1] = sim->boxes->gridSize[1];
+        b->gridSize[2] = sim->boxes->gridSize[2];
+        b->nLocalBoxes = sim->boxes->nLocalBoxes;
+        b->localMin[0] = sim->boxes->localMin[0];
+        b->localMin[1] = sim->boxes->localMin[1];
+        b->localMin[2] = sim->boxes->localMin[2];
+        b->localMax[0] = sim->boxes->localMax[0];
+        b->localMax[1] = sim->boxes->localMax[1];
+        b->localMax[2] = sim->boxes->localMax[2];
 
-//        printf("====%d\n", i);
+        b->boxSize[0] = sim->boxes->boxSize[0];
+        b->boxSize[1] = sim->boxes->boxSize[1];
+        b->boxSize[2] = sim->boxes->boxSize[2];
+        b->invBoxSize[0] = sim->boxes->invBoxSize[0];
+        b->invBoxSize[1] = sim->boxes->invBoxSize[1];
+        b->invBoxSize[2] = sim->boxes->invBoxSize[2];
+        b->nAtoms = sim->boxes->nAtoms[i];
+
+        // initialize ljPotential
+        b->potSigma = 2.315;
+        b->potEpsilon = 0.167;
+        b->potCutoff = 2.5*b->potSigma;
+        b->potMass = 63.55 * amuToInternalMass;
+
+
+  //      printf("%d, %d\n", i, b->nAtoms);
+
+        sum += b->nAtoms;
+
+        b->i = i;
+        cncPut_B(b_handle, i, 0, 0, 1, context);
+
         cncPrescribe_advanceVelocityStep(i, 1, context);
         cncPrescribe_reduceStep(i, 1, context);
     }
+
+    printf("Total number of atoms == %d\n", sum);
 
     int *s;
     cncHandle_t s_handle = cncCreateItem_s(&s, 1);
@@ -447,7 +515,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 }
 
 
-void cncEnvOut(int i, int iter, BItem B, ATOMSItem a, redcItem r, Context *context) {
+void cncEnvOut(int i, int iter, BItem B, redcItem r, Context *context) {
   //  PRINTF("Box %d, iteration %d ends\n", i, iter);
     real_t p,k,t;
     p = r.item->ePot/32000;

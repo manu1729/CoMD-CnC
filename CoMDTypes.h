@@ -18,9 +18,19 @@ struct info;
 #include "haloExchange.h"
 
 
+/// species data: chosen to match the data found in the setfl/funcfl files
+typedef struct SpeciesDataSt
+{
+   char  name[3];   //!< element name
+   int   atomicNo;  //!< atomic number
+   real_t mass;     //!< mass in internal units
+} SpeciesData;
+
+
 ////////////////// declaring CnC data structures - start //////////////////
 struct box {
     int i;  // box number
+    real_t dt;
     double ePot;
     double eKin;
     int nAtoms;
@@ -30,16 +40,24 @@ struct box {
     int gridSize[3];
     real3 boxSize;
     real3 invBoxSize;
+    SpeciesData species[1];
     struct AtmsNew {
         int gid[MAXATOMS];
-        int species[MAXATOMS];
+        int iSpecies[MAXATOMS];
         int nLocal;
         int nGlobal;
         real3 r[MAXATOMS];
         real3 p[MAXATOMS];
-        real3 U[MAXATOMS];
+        real3 f[MAXATOMS];
+        real_t U[MAXATOMS];
 
-    } CnCAtoms1;
+    } atoms;
+    real_t potSigma;
+    real_t potEpsilon;
+    real_t potCutoff;
+    real_t potMass;
+    real_t potLat;
+    real_t potAtomicNo;
 
 };
 
@@ -59,7 +77,7 @@ typedef struct Atms {
     real3 U[MAXATOMS];
  */
     int i;
-} CnCAtoms;
+} CnCAtoms1;
 
 struct cmdInfo {
     int nx,ny,nz;
@@ -121,13 +139,6 @@ typedef struct BasePotentialSt
 
 
 
-/// species data: chosen to match the data found in the setfl/funcfl files
-typedef struct SpeciesDataSt
-{
-   char  name[3];   //!< element name
-   int   atomicNo;  //!< atomic number
-   real_t mass;     //!< mass in internal units
-} SpeciesData;
 
 /// Simple struct to store the initial energy and number of atoms.
 /// Used to check energy conservation and atom conservation.

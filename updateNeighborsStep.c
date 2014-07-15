@@ -1,6 +1,6 @@
 #include "Common.h"
 
-void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai, BItem b1, ATOMSItem a, Context *context) {
+void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai, BItem b1, Context *context) {
     if (i==0)
     PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, iter);
 
@@ -13,6 +13,7 @@ void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai, BItem b1, ATO
 
      // to be populated later -- if last neighbor
      if (1) {
+         CNC_DESTROY_ITEM(ai.handle);  /////////////// should be based on some condition
          if (i < 1727)
          cncPrescribe_updateBoxStep(i+1, 0, iter, context);
      }
