@@ -2,7 +2,9 @@
 
 
 void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb, Context *context) {
-//    PRINTF("reducesStep %d, %d\n", i, iter);
+
+//    if(i==0)
+//        PRINTF("reducesStep %d, %d, %d\n", i, iter, it.item );
     struct myReduction *r = rd.item;
     struct box *b1 = b.item;
 
@@ -22,7 +24,7 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
             p = r->ePot/32000;
             k = r->eKin/32000;
             t = p+k;
-            PRINTF("%2d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
+            PRINTF("%4d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
         }
         r->ePot = 0.0;
         r->eKin = 0.0;
@@ -42,12 +44,13 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
             p = r->ePot/32000;
             k = r->eKin/32000;
             t = p+k;
-            PRINTF("%18.12f %18.12f %18.12f\n",t,p,k);
+            PRINTF("%4d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
+        } else {
+            cncPrescribe_reduceStep(i+1, iter, context);
         }
-        //cncPut_redc(rd.handle, i+1, iter, context);
-        cncPrescribe_reduceStep(i+1, iter, context);
         b1->ePot = 0;// b.item->ePot;
         b1->eKin = 0;//b.item->eKin;
+        cncPut_redc(rd.handle, i+1, iter, context);
         cncPut_B(b.handle, i, 5, 0, iter, context);
  //       printf("%d,%d\n", i,iter);
     }

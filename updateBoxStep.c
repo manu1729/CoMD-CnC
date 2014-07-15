@@ -61,7 +61,7 @@ void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
         cncPut_AtomInfo(db_handle, i, ai->nbrs[0][0], iter, context);
         cncPrescribe_updateNeighborsStep(i, ai->nbrs[0][0], iter, context);
     } else {
- //       CNC_DESTROY_ITEM(ai.handle);  /////////////// should be based on some condition
+        CNC_DESTROY_ITEM(db_handle);  /////////////// should be based on some condition
         if (i < 1727)
             cncPrescribe_updateBoxStep(i+1, 0, iter, context);
     }
