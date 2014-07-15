@@ -513,7 +513,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     *t = numNbrs;
     cncPut_Nbs(t_handle, 0, context);
 
-    printf("     Total Energy     Potential Energy    Kinetic Energy \n");
+    printf("Loop     Total Energy     Potential Energy    Kinetic Energy \n");
     cncPrescribe_cncEnvOut(totalBoxes-1, MAXIT-1, context);
 }
 

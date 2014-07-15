@@ -21,7 +21,7 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
             p = r->ePot/32000;
             k = r->eKin/32000;
             t = p+k;
-            PRINTF("%18.12f %18.12f %18.12f\n",t,p,k);
+            PRINTF("%2d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
         }
         r->ePot = 0.0;
         r->eKin = 0.0;

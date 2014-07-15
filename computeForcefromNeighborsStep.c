@@ -178,6 +178,6 @@ int KinEnergy(int i, int iter, struct box *b) {
     }
 
 
-    b->eKin += kinE;
+    b->eKin = kinE;
     return 0;
 }
