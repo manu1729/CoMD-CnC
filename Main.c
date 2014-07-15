@@ -477,8 +477,8 @@ void cncEnvIn(int argc, char** argv, Context *context) {
         cncPut_B(b_handle, i, 0, 0, 1, context);
 
         cncPrescribe_advanceVelocityStep(i, 1, context);
-        cncPrescribe_reduceStep(i, 1, context);
     }
+    cncPrescribe_reduceStep(0, 1, context);
 
     printf("Total atoms: %d, Sum Pot: %lf, Sum R: %lf\n", sum, sump, sumr);
 

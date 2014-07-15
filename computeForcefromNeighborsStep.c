@@ -12,19 +12,14 @@ void computeForcefromNeighborsStep (int i, int j, int k, int iter, BItem b1, BIt
     bn = b2.item;
 
     force(i, iter,k, b, bn);
-    KinEnergy(i, iter, b);
 
     if (k < 26 ) {
 
-        cncPut_B(b1.handle, i, 3, k+1, iter, context);
+//        cncPut_B(b1.handle, i, 3, k+1, iter, context);
         int nNbrBoxes = getNeighborBoxes1(b1.item, i, nbrBoxes);
-//        if (i == 0)
-//            printf("Neighbor %d is %d\n",k+1, nbrBoxes[k+1]);
         cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[k+1], k+1, iter, context);
     } else {
- //       if (i==0) {
- //           PRINTF("k====26, force = %lf\n", b->ePot);
-//        }
+        KinEnergy(i, iter, b);
         cncPut_B(b1.handle, i, 4, 0, iter, context);
     }
 }

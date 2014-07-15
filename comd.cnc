@@ -57,25 +57,28 @@
 ( updateNeighborsStep : i, j, iter ) -> [ AtomInfo : i, k , iter ]; // "B[j...]" is updated but not inserted as an item, okay here as the updates are sequential
 ( updateNeighborsStep : i, j, iter ) -> < UpdateBox : i+1, 0, iter > ; // executed by the "last" neighbor step 
 
-[ B : i, 1, 0, iter ] -> (generateDataforForceStep: i, iter) -> [ B : i, 3, 0, iter ], < GenForceDataTag : i+1, iter>;
+//[ B : i, 1, 0, iter ] -> (generateDataforForceStep: i, iter) -> [ B : i, 3, 0, iter ], < GenForceDataTag : i+1, iter>;
+[ B : i, 1, 0, iter ] -> (generateDataforForceStep: i, iter) -> < GenForceDataTag : i+1, iter>;
 (generateDataforForceStep: i, iter) -> < GenForceTags: iter >; // when i == last box
 
 [ TBoxes : 0 ], [ Nbs : 0 ] -> ( generateForceTagsStep : iter ) -> < ComputeForce: { 0 .. TBoxes[0]-1 }, iter > ;  
 
 
-[ B : i, 3, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j, k, iter >; // generate tag for force computation due to the first neighbor 
-[ B : i, 3, k, iter ], [ B : j, 3, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 3, k+1, iter ], < ForcefromNbrs : i, jnext, k+1, iter >;
+//[ B : i, 3, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j, k, iter >; // generate tag for force computation due to the first neighbor 
+//[ B : i, 3, k, iter ], [ B : j, 3, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 3, k+1, iter ], < ForcefromNbrs : i, jnext, k+1, iter >;
+[ B : i, 1, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j, k, iter >; // generate tag for force computation due to the first neighbor
+[ B : i, 1, 0, iter ], [ B : j, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> < ForcefromNbrs : i, jnext, k+1, iter >;
 ( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
 
-
-[ B : i, 4, 0, iter ], [redc : i, iter ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> [ redc : i+1, iter ], [ B : i, 0, 0, iter+1 ] ;
+//[ B : i, 4, 0, iter ], [redc : i, iter ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> [ redc : i+1, iter ], [ B : i, 0, 0, iter+1 ] ;
+[ B : i, 4, 0, iter ], [redc :0, 1 ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> < Reduce: i+1, iter>,  [ B : i, 0, 0, iter+1 ] ;
 ( reduceStep : i, iter ) -> [ B : i, 5, 0, iter ]; // is executed only when i == 1727 and iter == max_iteration
-( reduceStep : i, iter ) -> [ redc : 0, iter+1 ] ;  // when i = TBoxes[0] and iter < IT[0]
-
+//( reduceStep : i, iter ) -> [ redc : 0, iter+1 ] ;  // when i = TBoxes[0] and iter < IT[0]
+( reduceStep : i, iter ) -> < Reduce: 0, iter+1> ;  // when i = TBoxes[0] and iter < IT[0]
 
 // Write graph inputs and start steps
 env -> [ B : i, 0, 0, 1 ], [ s : 0, 1 ], [ IT : 0 ], [ TBoxes : 0 ], [ Nbs : 0 ]; //[ TAtoms : 0 ], [ AperB : 0 ], 
-env -> < AdvVelocity : i, 1 >, < GenForceTags : 1 >, < Reduce: i, IT[0]>;
+env -> < AdvVelocity : i, 1 >, < GenForceTags : 1 >, < Reduce: 0, 1>;
 env -> [ SF : 1 ], [ POT : 1 ], [ SPECIES : 1 ], [ DD : 1 ], [ LC : 1], [ NAtoms : 1 ], [CMD : 1], [ redc : 0, 1];
 
 // Return outputs to the caller
