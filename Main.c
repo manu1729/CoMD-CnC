@@ -501,6 +501,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     rd->i = 0;
     rd->ePot = 0.0;
     rd->eKin = 0.0;
+    rd->nAtoms = 0;
     cncPut_redc(rd_handle, 0, 1, context);
 
     // creating IT
@@ -522,7 +523,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     *t = numNbrs;
     cncPut_Nbs(t_handle, 0, context);
 
-    printf("Loop     Total Energy     Potential Energy    Kinetic Energy \n");
+    printf(" Loop      Total Energy     Potential Energy    Kinetic Energy  #Atoms\n");
     cncPrescribe_cncEnvOut(totalBoxes-1, MAXIT-1, context);
 }
 

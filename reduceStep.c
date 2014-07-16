@@ -10,6 +10,7 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
 
     r->ePot = rd.item->ePot + b.item->ePot;
     r->eKin = rd.item->eKin + b.item->eKin;
+    r->nAtoms = rd.item->nAtoms + b.item->nAtoms;
 
 
     if ((i < tb.item -1) && ( iter < it.item-1)) {
@@ -19,15 +20,16 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
     }
     if ((i == tb.item -1) && (iter < (it.item -1))) {
         cncPut_B(b.handle, i, 0, 0, iter+1, context);
-        if (!(iter % 1)) {
+        if (!(iter % 10)) {
             real_t t,p,k;
             p = r->ePot/32000;
             k = r->eKin/32000;
             t = p+k;
-            PRINTF("%4d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
+            PRINTF("%4d  %18.12f %18.12f %18.12f %6d\n",iter, t,p,k, r->nAtoms);
         }
         r->ePot = 0.0;
         r->eKin = 0.0;
+        r->nAtoms = 0;
         //cncPut_redc(rd.handle, 0, iter+1, context);
         cncPrescribe_reduceStep(0, iter+1, context);
         for (int ii = 0; ii <  tb.item; ii++) {
@@ -44,7 +46,7 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
             p = r->ePot/32000;
             k = r->eKin/32000;
             t = p+k;
-            PRINTF("%4d  %18.12f %18.12f %18.12f\n",iter, t,p,k);
+            PRINTF("%4d  %18.12f %18.12f %18.12f %6d\n",iter, t,p,k, r->nAtoms);
         } else {
             cncPrescribe_reduceStep(i+1, iter, context);
         }

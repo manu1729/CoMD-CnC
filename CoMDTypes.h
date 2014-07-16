@@ -103,6 +103,7 @@ struct myReduction {
     int i;
     double ePot;
     double eKin;
+    int nAtoms;
 };
 
 struct atomInfo {

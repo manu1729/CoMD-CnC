@@ -53,8 +53,8 @@ void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
             ai->nbrs[kk][1] = 1;
     }
 
-    if (c != 0)
-        printf("Number of atoms to be moved:%d, %d\n",i, c);
+ //   if (c != 0)
+ //       printf("Number of atoms to be moved:%d, %d\n",i, c);
     //////////////////////////////////////////////////
 
     if (c) {
