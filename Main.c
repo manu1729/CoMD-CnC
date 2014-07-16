@@ -48,7 +48,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <assert.h>
-
+#include <sys/time.h>
 
 #include "CoMDTypes.h"
 #include "decomposition.h"
@@ -62,6 +62,7 @@
 #include "timestep.h"
 #include "haloExchange.h"
 #include "constants.h"
+
 
 
 #include "Context.h"
@@ -429,6 +430,14 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 
         }
 
+        if (i == 0) {
+            // Record the starting time of the computation
+            struct timeval *start;
+            cncHandle_t tm_handle = cncCreateItem_time(&start, 1);
+            gettimeofday(start, 0);
+            cncPut_time(tm_handle, 0, context);
+        }
+
         // copy other data structures of "atoms"
         b->atoms.nLocal = sim->atoms->nLocal;
         b->atoms.nGlobal = sim->atoms->nGlobal;
@@ -518,7 +527,7 @@ void cncEnvIn(int argc, char** argv, Context *context) {
 }
 
 
-void cncEnvOut(int i, int iter, BItem B, redcItem r, Context *context) {
+void cncEnvOut(int i, int iter, BItem B, redcItem r,  timeItem start, Context *context) {
   //  PRINTF("Box %d, iteration %d ends\n", i, iter);
     real_t p,k,t;
     p = r.item->ePot/32000;
@@ -526,6 +535,12 @@ void cncEnvOut(int i, int iter, BItem B, redcItem r, Context *context) {
     t = p+k;
 
     PRINTF("Total energy = %18.12f, Potential energy = %18.12f, Kinetic energy = %18.12f\n",t,p,k);
+
+    struct timeval end;
+    gettimeofday(&end, 0);
+    t = end.tv_sec - start.item->tv_sec;
+    t += (end.tv_usec - start.item->tv_usec) / 1000000.0;
+    printf("Time taken: %lf seconds\n", t);
 }
 
 

@@ -16,6 +16,8 @@
 [ struct atomInfo *AtomInfo];
 [ struct cmdInfo *CMD ] ; // initial commandline/default parameters
 
+[ struct timeval *time ];
+
 
 
 [ int IT ] ; // number of iterations
@@ -79,7 +81,7 @@
 // Write graph inputs and start steps
 env -> [ B : i, 0, 0, 1 ], [ s : 0, 1 ], [ IT : 0 ], [ TBoxes : 0 ], [ Nbs : 0 ]; //[ TAtoms : 0 ], [ AperB : 0 ], 
 env -> < AdvVelocity : i, 1 >, < GenForceTags : 1 >, < Reduce: 0, 1>;
-env -> [ SF : 1 ], [ POT : 1 ], [ SPECIES : 1 ], [ DD : 1 ], [ LC : 1], [ NAtoms : 1 ], [CMD : 1], [ redc : 0, 1];
+env -> [ time : 0], [ SF : 1 ], [ POT : 1 ], [ SPECIES : 1 ], [ DD : 1 ], [ LC : 1], [ NAtoms : 1 ], [CMD : 1], [ redc : 0, 1];
 
 // Return outputs to the caller
-[ B : i, 5, 0, iter  ], [ redc : i+1, iter] -> ( env: i, iter );
+[ B : i, 5, 0, iter  ], [ redc : i+1, iter], [ time : 0] -> ( env: i, iter );
