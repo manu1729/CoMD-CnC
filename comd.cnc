@@ -11,7 +11,6 @@
 [ Domain *DD ];
 [ LinkCell *LC ];
 [ int *NAtoms ];
-//[ CnCAtoms *ATOMS];
 [ struct myReduction *redc]; // used for reduction
 [ struct atomInfo *AtomInfo];
 [ struct cmdInfo *CMD ] ; // initial commandline/default parameters
