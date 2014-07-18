@@ -72,6 +72,8 @@
 [ B : i, 1, 0, iter ], [ B : j, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> < ForcefromNbrs : i, jnext, k+1, iter >;
 ( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
 
+
+
 //[ B : i, 4, 0, iter ], [redc : i, iter ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> [ redc : i+1, iter ], [ B : i, 0, 0, iter+1 ] ;
 [ B : i, 4, 0, iter ], [redc :0, 1 ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> < Reduce: i+1, iter>,  [ B : i, 0, 0, iter+1 ] ;
 ( reduceStep : i, iter ) -> [ B : i, 5, 0, iter ]; // is executed only when i == 1727 and iter == max_iteration

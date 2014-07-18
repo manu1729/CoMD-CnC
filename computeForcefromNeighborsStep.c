@@ -15,7 +15,6 @@ void computeForcefromNeighborsStep (int i, int j, int k, int iter, BItem b1, BIt
 
     if (k < 26 ) {
 
-//        cncPut_B(b1.handle, i, 3, k+1, iter, context);
         int nNbrBoxes = getNeighborBoxes1(b1.item, i, nbrBoxes);
         cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[k+1], k+1, iter, context);
     } else {
