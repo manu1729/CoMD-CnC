@@ -44,7 +44,7 @@ void forceStep (int i, int iter, BItem b1, Context *context) {
     b->ePot = 0.0;
     b->eKin = 0.0;
 
-    cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[0], 0, iter, context);
+    cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[0], nbrBoxes[1],nbrBoxes[2],nbrBoxes[3],nbrBoxes[4],nbrBoxes[5],nbrBoxes[6],nbrBoxes[7],nbrBoxes[8],nbrBoxes[9],nbrBoxes[10],nbrBoxes[11],nbrBoxes[12],nbrBoxes[14],nbrBoxes[15],nbrBoxes[16],nbrBoxes[17],nbrBoxes[18],nbrBoxes[19],nbrBoxes[20],nbrBoxes[21],nbrBoxes[22],nbrBoxes[23],nbrBoxes[24],nbrBoxes[25],nbrBoxes[26], iter, context);
 }
 
 void getTuple1(struct box *b, int iBox, int* ixp, int* iyp, int* izp) {

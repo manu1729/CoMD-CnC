@@ -29,7 +29,7 @@
 < int [3] UpdateBox > ;
 < int [3] UpdateNbrs > ;
 < int [2] GenForceDataTag > ;
-< int [4] ForcefromNbrs >;
+< int [28] ForcefromNbrs >;
 < int [1] GenForceTags > ;
 < int [2] ComputeForce> ;
 < int [2] Reduce >;
@@ -58,25 +58,21 @@
 ( updateNeighborsStep : i, j, iter ) -> [ AtomInfo : i, k , iter ]; // "B[j...]" is updated but not inserted as an item, okay here as the updates are sequential
 ( updateNeighborsStep : i, j, iter ) -> < UpdateBox : i+1, 0, iter > ; // executed by the "last" neighbor step 
 
-//[ B : i, 1, 0, iter ] -> (generateDataforForceStep: i, iter) -> [ B : i, 3, 0, iter ], < GenForceDataTag : i+1, iter>;
 [ B : i, 1, 0, iter ] -> (generateDataforForceStep: i, iter) -> < GenForceDataTag : i+1, iter>;
 (generateDataforForceStep: i, iter) -> < GenForceTags: iter >; // when i == last box
 
 [ TBoxes : 0 ], [ Nbs : 0 ] -> ( generateForceTagsStep : iter ) -> < ComputeForce: { 0 .. TBoxes[0]-1 }, iter > ;  
 
 
-//[ B : i, 3, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j, k, iter >; // generate tag for force computation due to the first neighbor 
-//[ B : i, 3, k, iter ], [ B : j, 3, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 3, k+1, iter ], < ForcefromNbrs : i, jnext, k+1, iter >;
-[ B : i, 1, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j, k, iter >; // generate tag for force computation due to the first neighbor
-[ B : i, 1, 0, iter ], [ B : j, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j, k, iter ) -> < ForcefromNbrs : i, jnext, k+1, iter >;
-( computeForcefromNeighborsStep: i, j, k, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
+[ B : i, 1, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >; // generate tag for force computation due to the first neighbor
+[ B : i, 1, 0, iter ], [ B : j1, 1, 0, iter ], [ B : j2, 1, 0, iter ], [ B : j3, 1, 0, iter ], [ B : j4, 1, 0, iter ], [ B : j5, 1, 0, iter ], [ B : j6, 1, 0, iter ], [ B : j7, 1, 0, iter ], [ B : j8, 1, 0, iter ], [ B : j9, 1, 0, iter ], [ B : j10, 1, 0, iter ], [ B : j11, 1, 0, iter ], [ B : j12, 1, 0, iter ], [ B : j13, 1, 0, iter ], [ B : j14, 1, 0, iter ], [ B : j15, 1, 0, iter ], [ B : j16, 1, 0, iter ], [ B : j17, 1, 0, iter ], [ B : j18, 1, 0, iter ], [ B : j19, 1, 0, iter ], [ B : j20, 1, 0, iter ], [ B : j21, 1, 0, iter ], [ B : j22, 1, 0, iter ], [ B : j23, 1, 0, iter ], [ B : j24, 1, 0, iter ], [ B : j25, 1, 0, iter ], [ B : j26, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter );
+( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> < ForcefromNbrs : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >;
+( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
 
 
 
-//[ B : i, 4, 0, iter ], [redc : i, iter ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> [ redc : i+1, iter ], [ B : i, 0, 0, iter+1 ] ;
 [ B : i, 4, 0, iter ], [redc :0, 1 ], [ IT : 0 ], [ TBoxes : 0 ] -> ( reduceStep : i, iter ) -> < Reduce: i+1, iter>,  [ B : i, 0, 0, iter+1 ] ;
 ( reduceStep : i, iter ) -> [ B : i, 5, 0, iter ]; // is executed only when i == 1727 and iter == max_iteration
-//( reduceStep : i, iter ) -> [ redc : 0, iter+1 ] ;  // when i = TBoxes[0] and iter < IT[0]
 ( reduceStep : i, iter ) -> < Reduce: 0, iter+1> ;  // when i = TBoxes[0] and iter < IT[0]
 
 // Write graph inputs and start steps
