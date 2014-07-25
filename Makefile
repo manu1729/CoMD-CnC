@@ -37,7 +37,7 @@ CFLAGS +=-g -I$(CNCOCR_INSTALL)/include -I$(OCR_INSTALL)/include -D__OCR__  -I./
 
 include steplist.mk
 SRCS= Common.c Context.c Dispatch.c $(STEP_SRCS) cmdLineParser.c mycommand.c random.c parallel.c
-SRCS += haloExchange.c initAtoms.c linkCells.c yamlOutput.c timestep.c ljForce.c decomposition.c Main.c
+SRCS += haloExchange.c initAtoms.c linkCells.c yamlOutput.c timestep.c eam.c decomposition.c Main.c
 #SRCS=$(wildcard *.c)
 OBJS=$(patsubst %.c,%.o,$(SRCS))
 

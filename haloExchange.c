@@ -36,7 +36,7 @@
 #include "decomposition.h"
 #include "parallel.h"
 #include "linkCells.h"
-//#include "eam.h"
+#include "eam.h"
 #include "memUtils.h"
 //#include "performanceTimers.h"
 
@@ -203,7 +203,7 @@ HaloExchange* initAtomHaloExchange(Domain* domain, LinkCell* boxes)
 /// \see eam.c for an explanation of the requirement to exchange
 /// force data.
 
-/*
+
 HaloExchange* initForceHaloExchange(Domain* domain, LinkCell* boxes)
 {
    HaloExchange* hh = initHaloExchange(domain);
@@ -237,7 +237,6 @@ HaloExchange* initForceHaloExchange(Domain* domain, LinkCell* boxes)
    hh->parms = parms;
    return hh;
 }
-*/
 
 void destroyHaloExchange(HaloExchange** haloExchange)
 {
@@ -544,7 +543,6 @@ int* mkForceRecvCellList(LinkCell* boxes, int face, int nCells)
 /// \see HaloExchangeSt::loadBuffer for an explanation of the loadBuffer
 /// parameters.
 
-/*
 int loadForceBuffer(void* vparms, void* vdata, int face, char* charBuf)
 {
    ForceExchangeParms* parms = (ForceExchangeParms*) vparms;
@@ -566,7 +564,6 @@ int loadForceBuffer(void* vparms, void* vdata, int face, char* charBuf)
    }
    return nBuf*sizeof(ForceMsg);
 }
-*/
 
 
 /// The unloadBuffer function for a force exchange.
@@ -576,7 +573,6 @@ int loadForceBuffer(void* vparms, void* vdata, int face, char* charBuf)
 /// \see HaloExchangeSt::unloadBuffer for an explanation of the
 /// unloadBuffer parameters.
 
-/*
 void unloadForceBuffer(void* vparms, void* vdata, int face, int bufSize, char* charBuf)
 {
    ForceExchangeParms* parms = (ForceExchangeParms*) vparms;
@@ -610,7 +606,6 @@ void destroyForceExchange(void* vparms)
       comdFree(parms->recvCells[ii]);
    }
 }
-*/
 
 /// \details
 /// The force exchange assumes that the atoms are in the same order in

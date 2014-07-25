@@ -3,7 +3,7 @@
 void advanceVelocityStep (int i, int iter, BItem b1, Context *context) {
 
 //    if (i==0)
-//    printf("advanceVelocityStep %d, %d, %lf\n",i,  b1.item->i, b1.item->dt);
+//    printf("advanceVelocityStep %d, %d, %lf\n",i,  iter, b1.item->dt);
 
     struct box *b = b1.item;
 
@@ -28,8 +28,8 @@ void advanceVelocityStep (int i, int iter, BItem b1, Context *context) {
     }
 
 
- //   if (i==0)
- //       printf("sump = %lf, sumr = %lf\n", sump, sumr);
+    if (i==0)
+        printf("sump = %lf, sumr = %lf\n", sump, sumr);
 
     cncPut_B(b1.handle, i, 1, 0, iter, context);
 

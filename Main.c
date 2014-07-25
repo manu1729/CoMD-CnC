@@ -58,7 +58,7 @@
 #include "yamlOutput.h"
 #include "mycommand.h"
 #include "parallel.h"
-#include "ljForce.h"
+#include "eam.h"
 #include "timestep.h"
 #include "haloExchange.h"
 #include "constants.h"
@@ -90,7 +90,7 @@ BasePotential* initPotential(
 {
    BasePotential* pot = NULL;
 
-   pot = initLjPot(context);
+   pot = initEamPot(potDir, potName, potType);
    assert(pot);
    return pot;
 }
@@ -400,8 +400,64 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     int sum = 0;
     real_t sump = 0.0, sumr = 0.0;
     printf("-----------------------------------------\n");
+
+    printf("---------- Potential related data ---------- \n");
+    EamPotential* pot = (EamPotential *)sim->pot;
+    printf(" Cutoff = %lf\n", pot->cutoff);
+    printf(" Mass = %lf\n", pot->mass/amuToInternalMass);
+    printf(" Lat = %lf\n", pot->lat);
+    printf("Phi: %d, %d\n", pot->phi->n, pot->phi->x0);
+    printf("Rho: %d, %d\n", pot->rho->n, pot->rho->x0);
+    printf("f: %d, %d\n", pot->f->n, pot->f->x0);
+
+    size_t size;
+    size = sizeof(struct eamPot) + (pot->phi->n + pot->rho->n +  pot->f->n + 9)*sizeof(real_t);
+
+    printf("size == %d, %d\n", size, sizeof(struct box));
+
+
+    // Initialize EAM potential
+    struct eamPot *potCnC;
+    cncHandle_t potHandle = cncCreateItem_POT(&potCnC, 1);
+    potCnC->mass = pot->mass;
+    potCnC->lat = pot->lat;
+    potCnC->cutoff = pot->cutoff;
+    potCnC->atomicNo = pot->atomicNo;
+
+    potCnC->phi.n = pot->phi->n;
+    potCnC->phi.x0 = pot->phi->x0;
+    potCnC->phi.invDx = pot->phi->invDx;
+
+    potCnC->rho.n = pot->rho->n;
+    potCnC->rho.x0 = pot->rho->x0;
+    potCnC->rho.invDx = pot->rho->invDx;
+
+    potCnC->f.n = pot->f->n;
+    potCnC->f.x0 = pot->f->x0;
+    potCnC->f.invDx = pot->f->invDx;
+
+
+    printf("phi.x0 = %lf, rho.x0 = %lf, f.x0 = %lf \n", potCnC->phi.x0, potCnC->rho.x0, potCnC->f.x0 );
+    printf("phi.x0 = %lf, rho.x0 = %lf, f.x0 = %lf \n", pot->phi->x0, pot->rho->x0, pot->f->x0 );
+
+    real_t ttt;
+    for (i = 0; i < potCnC->phi.n+2; i++){
+        potCnC->phi.values[i] = pot->phi->values[i];
+    }
+
+    for (i = 0; i < potCnC->rho.n+2; i++){
+        potCnC->rho.values[i] = pot->rho->values[i];
+    }
+
+    for (i = 0; i < potCnC->f.n+2; i++){
+        potCnC->f.values[i] = pot->f->values[i];
+    }
+
+    cncPut_POT(potHandle, 0, context);
+
     for (i=0; i<totalBoxes; i++){
         cncHandle_t b_handle = cncCreateItem_B(&b, 1);
+        //cncCreateItemSized_data
 
         // Copy initialization data into CnC related data structures
         for (int iOff=MAXATOMS*i,ii=0; ii<sim->boxes->nAtoms[i]; ii++,iOff++) {

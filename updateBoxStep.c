@@ -4,7 +4,7 @@
 
 void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
 
-    //printf("updateBoxStep %d\n", i);
+//    printf("updateBoxStep %d %d\n", i, iter);
 
     struct box *b = b1.item;
     struct atomInfo *ai;
@@ -18,6 +18,7 @@ void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
     {
         int jBox = getBoxFromCoord(b, b->atoms.r[ii]);
         if (jBox != iBox) {
+//            printf("%d, %d\n", iBox, jBox);
             // put "j" box and atom info into atomInfo
             ai->gid[c] = b->atoms.gid[ii];
             ai->iSpecies[c] = b->atoms.iSpecies[ii];
@@ -53,20 +54,22 @@ void updateBoxStep (int i, int k, int iter, BItem b1, Context *context) {
             ai->nbrs[kk][1] = 1;
     }
 
- //   if (c != 0)
- //       printf("Number of atoms to be moved:%d, %d\n",i, c);
+//    if (c != 0)
+//        printf("Number of atoms to be moved:%d, %d\n",i, c);
     //////////////////////////////////////////////////
 
     if (c) {
+//        printf("Myself and Neighbor:%d, %d\n",i, ai->nbrs[0][0]);
         cncPut_AtomInfo(db_handle, i, ai->nbrs[0][0], iter, context);
         cncPrescribe_updateNeighborsStep(i, ai->nbrs[0][0], iter, context);
     } else {
+//        printf("updateBoxStep11111 %d %d\n", i, iter);
         CNC_DESTROY_ITEM(db_handle);  /////////////// should be based on some condition
-        if (i < 1727)
+        if (i < b->nLocalBoxes-1)
             cncPrescribe_updateBoxStep(i+1, 0, iter, context);
     }
 
-    if (i == 1727) {
+    if (i == b->nLocalBoxes -1) {
         cncPrescribe_generateDataforForceStep(0, iter,context);
     }
 

@@ -29,8 +29,8 @@ int getNeighborBoxes1(struct box *b, int iBox, int* nbrBoxes);
 void forceStep (int i, int iter, BItem b1, Context *context) {
 
     struct box *b = b1.item;
-//    if (i == 0)
-//    PRINTF("forceStep %d, %d\n", i, iter);
+ //   if (iter == 2)
+ //   PRINTF("forceStep %d, %d\n", i, iter);
 
     int nbrBoxes[27];
 
@@ -44,7 +44,13 @@ void forceStep (int i, int iter, BItem b1, Context *context) {
     b->ePot = 0.0;
     b->eKin = 0.0;
 
+ /*   if (i == 0) {
+        for (int ii = 0; ii < 27; ii++)
+            printf("%d, %d\n", i, nbrBoxes[ii]);
+    }
+*/
     cncPrescribe_computeForcefromNeighborsStep(i, nbrBoxes[0], nbrBoxes[1],nbrBoxes[2],nbrBoxes[3],nbrBoxes[4],nbrBoxes[5],nbrBoxes[6],nbrBoxes[7],nbrBoxes[8],nbrBoxes[9],nbrBoxes[10],nbrBoxes[11],nbrBoxes[12],nbrBoxes[14],nbrBoxes[15],nbrBoxes[16],nbrBoxes[17],nbrBoxes[18],nbrBoxes[19],nbrBoxes[20],nbrBoxes[21],nbrBoxes[22],nbrBoxes[23],nbrBoxes[24],nbrBoxes[25],nbrBoxes[26], iter, context);
+    cncPrescribe_computeForcefromNeighborsStep1(i, nbrBoxes[0], nbrBoxes[1],nbrBoxes[2],nbrBoxes[3],nbrBoxes[4],nbrBoxes[5],nbrBoxes[6],nbrBoxes[7],nbrBoxes[8],nbrBoxes[9],nbrBoxes[10],nbrBoxes[11],nbrBoxes[12],nbrBoxes[14],nbrBoxes[15],nbrBoxes[16],nbrBoxes[17],nbrBoxes[18],nbrBoxes[19],nbrBoxes[20],nbrBoxes[21],nbrBoxes[22],nbrBoxes[23],nbrBoxes[24],nbrBoxes[25],nbrBoxes[26], iter, context);
 }
 
 void getTuple1(struct box *b, int iBox, int* ixp, int* iyp, int* izp) {
@@ -69,6 +75,7 @@ int getBoxFromTuple1(struct box *b, int ix, int iy, int iz) {
     const int* gridSize = b->gridSize; // alias
 
     iBox = ix + gridSize[0] * iy + gridSize[0] * gridSize[1] * iz;
+//    printf("%d: %d, %d, %d\n", b->i, ix, iy, iz);
     assert(iBox >= 0);
     assert(iBox < b->nLocalBoxes);
 
@@ -186,6 +193,29 @@ int sortAtomsById1(const void* a, const void* b) {
    if (aId < bId)
       return -1;
    return 1;
+}
+
+void interpolateNew(InterpolationObjectNew* table, real_t r, real_t* f, real_t* df) {
+   const real_t* tt = table->values; // alias
+
+   if ( r < table->x0 ) r = table->x0;
+
+   r = (r-table->x0)*(table->invDx) ;
+   int ii = (int)floor(r);
+   if (ii > table->n)
+   {
+      ii = table->n;
+      r = table->n / table->invDx;
+   }
+   // reset r to fractional distance
+   r = r - floor(r);
+
+   real_t g1 = tt[ii+1] - tt[ii-1];
+   real_t g2 = tt[ii+2] - tt[ii];
+
+   *f = tt[ii] + 0.5*r*(g1 + r*(tt[ii+1] + tt[ii-1] - 2.0*tt[ii]) );
+
+   *df = 0.5*(g1 + r*(g2-g1))*table->invDx;
 }
 
 

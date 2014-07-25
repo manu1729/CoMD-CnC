@@ -14,6 +14,7 @@
 [ struct myReduction *redc]; // used for reduction
 [ struct atomInfo *AtomInfo];
 [ struct cmdInfo *CMD ] ; // initial commandline/default parameters
+[ struct eamPot *POT ];
 
 [ struct timeval *time ];
 
@@ -30,6 +31,7 @@
 < int [3] UpdateNbrs > ;
 < int [2] GenForceDataTag > ;
 < int [28] ForcefromNbrs >;
+< int [28] ForcefromNbrs1 >;
 < int [1] GenForceTags > ;
 < int [2] ComputeForce> ;
 < int [2] Reduce >;
@@ -41,6 +43,7 @@
 < UpdateNbrs > :: ( updateNeighborsStep );
 < GenForceDataTag > :: ( generateDataforForceStep);
 < ForcefromNbrs > :: ( computeForcefromNeighborsStep ); 
+< ForcefromNbrs1 > :: ( computeForcefromNeighborsStep1 ); 
 < GenForceTags > :: ( generateForceTagsStep ) ;
 < ComputeForce > :: ( forceStep ) ;
 < Reduce > :: ( reduceStep );
@@ -65,9 +68,17 @@
 
 
 [ B : i, 1, 0, iter ] -> ( forceStep : i, iter ) -> < ForcefromNbrs : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >; // generate tag for force computation due to the first neighbor
-[ B : i, 1, 0, iter ], [ B : j1, 1, 0, iter ], [ B : j2, 1, 0, iter ], [ B : j3, 1, 0, iter ], [ B : j4, 1, 0, iter ], [ B : j5, 1, 0, iter ], [ B : j6, 1, 0, iter ], [ B : j7, 1, 0, iter ], [ B : j8, 1, 0, iter ], [ B : j9, 1, 0, iter ], [ B : j10, 1, 0, iter ], [ B : j11, 1, 0, iter ], [ B : j12, 1, 0, iter ], [ B : j13, 1, 0, iter ], [ B : j14, 1, 0, iter ], [ B : j15, 1, 0, iter ], [ B : j16, 1, 0, iter ], [ B : j17, 1, 0, iter ], [ B : j18, 1, 0, iter ], [ B : j19, 1, 0, iter ], [ B : j20, 1, 0, iter ], [ B : j21, 1, 0, iter ], [ B : j22, 1, 0, iter ], [ B : j23, 1, 0, iter ], [ B : j24, 1, 0, iter ], [ B : j25, 1, 0, iter ], [ B : j26, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter );
-( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> < ForcefromNbrs : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >;
-( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
+( forceStep : i, iter ) -> < ForcefromNbrs1 : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >; // generate tag for force computation due to the first neighbor
+[ POT : 0 ], [ B : i, 1, 0, iter ], [ B : j1, 1, 0, iter ], [ B : j2, 1, 0, iter ], [ B : j3, 1, 0, iter ], [ B : j4, 1, 0, iter ], [ B : j5, 1, 0, iter ], [ B : j6, 1, 0, iter ], [ B : j7, 1, 0, iter ], [ B : j8, 1, 0, iter ], [ B : j9, 1, 0, iter ], [ B : j10, 1, 0, iter ], [ B : j11, 1, 0, iter ], [ B : j12, 1, 0, iter ], [ B : j13, 1, 0, iter ], [ B : j14, 1, 0, iter ], [ B : j15, 1, 0, iter ], [ B : j16, 1, 0, iter ], [ B : j17, 1, 0, iter ], [ B : j18, 1, 0, iter ], [ B : j19, 1, 0, iter ], [ B : j20, 1, 0, iter ], [ B : j21, 1, 0, iter ], [ B : j22, 1, 0, iter ], [ B : j23, 1, 0, iter ], [ B : j24, 1, 0, iter ], [ B : j25, 1, 0, iter ], [ B : j26, 1, 0, iter ] -> ( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter );
+// not required I think // ( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> < ForcefromNbrs : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >;
+( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> [ B : i, 2, 0, iter ]; // when k == 27-1
+
+///////////// testing start //////////////////
+( computeForcefromNeighborsStep: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> < ForcefromNbrs1 : i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter >;
+[ POT : 0 ], [ B : i, 2, 0, iter ], [ B : j1, 2, 0, iter ], [ B : j2, 2, 0, iter ], [ B : j3, 2, 0, iter ], [ B : j4, 2, 0, iter ], [ B : j5, 2, 0, iter ], [ B : j6, 2, 0, iter ], [ B : j7, 2, 0, iter ], [ B : j8, 2, 0, iter ], [ B : j9, 2, 0, iter ], [ B : j10, 2, 0, iter ], [ B : j11, 2, 0, iter ], [ B : j12, 2, 0, iter ], [ B : j13, 2, 0, iter ], [ B : j14, 2, 0, iter ], [ B : j15, 2, 0, iter ], [ B : j16, 2, 0, iter ], [ B : j17, 2, 0, iter ], [ B : j18, 2, 0, iter ], [ B : j19, 2, 0, iter ], [ B : j20, 2, 0, iter ], [ B : j21, 2, 0, iter ], [ B : j22, 2, 0, iter ], [ B : j23, 2, 0, iter ], [ B : j24, 2, 0, iter ], [ B : j25, 2, 0, iter ], [ B : j26, 2, 0, iter ] -> ( computeForcefromNeighborsStep1: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter );
+( computeForcefromNeighborsStep1: i, j1,j2,j3,j4,j5,j6,j7,j8,j9,j10,j11,j12,j13,j14,j15,j16,j17,j18,j19,j20,j21,j22,j23,j24,j25,j26, iter ) -> [ B : i, 4, 0, iter ]; // when k == 27-1
+
+///////////// testing end   //////////////////
 
 
 
@@ -76,7 +87,7 @@
 ( reduceStep : i, iter ) -> < Reduce: 0, iter+1> ;  // when i = TBoxes[0] and iter < IT[0]
 
 // Write graph inputs and start steps
-env -> [ B : i, 0, 0, 1 ], [ s : 0, 1 ], [ IT : 0 ], [ TBoxes : 0 ], [ Nbs : 0 ]; //[ TAtoms : 0 ], [ AperB : 0 ], 
+env -> [ B : i, 0, 0, 1 ], [ s : 0, 1 ], [ IT : 0 ], [ TBoxes : 0 ], [ Nbs : 0 ], [ POT : 0 ]; //[ TAtoms : 0 ], [ AperB : 0 ], 
 env -> < AdvVelocity : i, 1 >, < GenForceTags : 1 >, < Reduce: 0, 1>;
 env -> [ time : 0], [ SF : 1 ], [ POT : 1 ], [ SPECIES : 1 ], [ DD : 1 ], [ LC : 1], [ NAtoms : 1 ], [CMD : 1], [ redc : 0, 1];
 

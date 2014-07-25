@@ -9,13 +9,16 @@
 struct SimFlatSt;
 struct box;
 struct info;
+//typedef struct InterpolationObjectSt InterpolationObject;
 
 #include <stdio.h>
+#include <string.h>
 #include "mytype.h"
 #include "decomposition.h"
 #include "linkCells.h"
 #include "initAtoms.h"
 #include "haloExchange.h"
+
 
 
 /// species data: chosen to match the data found in the setfl/funcfl files
@@ -28,39 +31,16 @@ typedef struct SpeciesDataSt
 
 
 ////////////////// declaring CnC data structures - start //////////////////
-struct box {
-    int i;  // box number
-    real_t dt;
-    double ePot;
-    double eKin;
-    int nAtoms;
-    real3 localMin;
-    real3 localMax;
-    int nLocalBoxes;
-    int gridSize[3];
-    real3 globalExtent;
-    real3 boxSize;
-    real3 invBoxSize;
-    SpeciesData species[1];
-    struct AtmsNew {
-        int gid[MAXATOMS];
-        int iSpecies[MAXATOMS];
-        int nLocal;
-        int nGlobal;
-        real3 r[MAXATOMS];
-        real3 p[MAXATOMS];
-        real3 f[MAXATOMS];
-        real_t U[MAXATOMS];
 
-    } atoms;
-    real_t potSigma;
-    real_t potEpsilon;
-    real_t potCutoff;
-    real_t potMass;
-    real_t potLat;
-    real_t potAtomicNo;
+typedef struct InterpolationObjectStNew
+{
+   int n;          //!< the number of values in the table
+   real_t x0;      //!< the starting ordinate range
+   real_t invDx;   //!< the inverse of the table spacing
+   real_t values[503]; //!< the abscissa values
+} InterpolationObjectNew;
 
-};
+
 
 typedef struct Atms {
 /*    int gid;
@@ -191,6 +171,48 @@ typedef struct SimFlatSt
    BasePotential *pot;    //!< the potential
 } SimFlat;
 
+#include "eam.h"
+
+struct box {
+    int i;  // box number
+    real_t dt;
+    double ePot;
+    double eKin;
+    int nAtoms;
+    real3 localMin;
+    real3 localMax;
+    int nLocalBoxes;
+    int gridSize[3];
+    real3 globalExtent;
+    real3 boxSize;
+    real3 invBoxSize;
+    SpeciesData species[1];
+    struct AtmsNew {
+        int gid[MAXATOMS];
+        int iSpecies[MAXATOMS];
+        int nLocal;
+        int nGlobal;
+        real3 r[MAXATOMS];
+        real3 p[MAXATOMS];
+        real3 f[MAXATOMS];
+        real_t U[MAXATOMS];
+
+    } atoms;
+    real_t potRhobar[MAXATOMS];
+    real_t potDfEmbed[MAXATOMS];
+    real_t potEpsilon, potSigma, potCutoff, potMass; // ToDo: need to remove this
+};
+
+struct eamPot {
+    real_t cutoff;
+    real_t mass;
+    real_t lat;
+    real_t atomicNo;
+    InterpolationObjectNew phi;
+    InterpolationObjectNew rho;
+    InterpolationObjectNew f;
+
+} pot;
 
 typedef struct LjPotentialSt
 {
@@ -206,12 +228,6 @@ typedef struct LjPotentialSt
    real_t sigma;
    real_t epsilon;
 } LjPotential;
-
-
-
-
-
-
 
 
 #endif

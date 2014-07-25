@@ -5,8 +5,8 @@ void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai1, BItem b1, Co
     struct atomInfo *ai = ai1.item;
     struct box *b = b1.item;
 
-//    if (i==0)
-//    PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, iter);
+ //   if (i==0)
+ //   PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, iter);
 
 
     // move the atoms from "atomInfo" into "b"
@@ -41,9 +41,11 @@ void updateNeighborsStep (int i, int j, int iter, AtomInfoItem ai1, BItem b1, Co
         }
     }
 
+ //   PRINTF("updateNeighborsStep %d, %d, %d\n", i, j, next);
+
     if (next == -1) { // this is the last box to be updated
         CNC_DESTROY_ITEM(ai1.handle);
-        if (i < 1727)
+        if (i < b->nLocalBoxes-1)
             cncPrescribe_updateBoxStep(i+1, 0, iter, context);
     } else {
         cncPrescribe_updateNeighborsStep(i, next, iter, context);
