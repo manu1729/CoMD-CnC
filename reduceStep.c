@@ -20,7 +20,7 @@ void reduceStep (int i, int iter, BItem b, redcItem rd, ITItem it, TBoxesItem tb
     }
     if ((i == tb.item -1) && (iter < (it.item -1))) {
         cncPut_B(b.handle, i, 0, 0, iter+1, context);
-        if (!(iter % 10)) {
+        if (!(iter % 1)) {
             real_t t,p,k;
             p = r->ePot/32000;
             k = r->eKin/32000;

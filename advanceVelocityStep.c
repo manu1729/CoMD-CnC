@@ -28,8 +28,8 @@ void advanceVelocityStep (int i, int iter, BItem b1, Context *context) {
     }
 
 
-    if (i==0)
-        printf("sump = %lf, sumr = %lf\n", sump, sumr);
+ //   if (i==0)
+ //       printf("sump = %lf, sumr = %lf\n", sump, sumr);
 
     cncPut_B(b1.handle, i, 1, 0, iter, context);
 

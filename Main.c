@@ -413,9 +413,6 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     size_t size;
     size = sizeof(struct eamPot) + (pot->phi->n + pot->rho->n +  pot->f->n + 9)*sizeof(real_t);
 
-    printf("size == %d, %d\n", size, sizeof(struct box));
-
-
     // Initialize EAM potential
     struct eamPot *potCnC;
     cncHandle_t potHandle = cncCreateItem_POT(&potCnC, 1);
@@ -436,9 +433,6 @@ void cncEnvIn(int argc, char** argv, Context *context) {
     potCnC->f.x0 = pot->f->x0;
     potCnC->f.invDx = pot->f->invDx;
 
-
-    printf("phi.x0 = %lf, rho.x0 = %lf, f.x0 = %lf \n", potCnC->phi.x0, potCnC->rho.x0, potCnC->f.x0 );
-    printf("phi.x0 = %lf, rho.x0 = %lf, f.x0 = %lf \n", pot->phi->x0, pot->rho->x0, pot->f->x0 );
 
     real_t ttt;
     for (i = 0; i < potCnC->phi.n+2; i++){

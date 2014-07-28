@@ -15,7 +15,7 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
     bn[18] = b19.item; bn[19] = b20.item; bn[20] = b21.item; bn[21] = b22.item; bn[22] = b23.item; bn[23] = b24.item; bn[24] = b25.item; bn[25] = b26.item; bn[26] = b27.item;
 
 
-    real_t rCut2 = b->potCutoff*b->potCutoff;
+    real_t rCut2  = pot->cutoff*pot->cutoff;
     int nIBox =  b->nAtoms;
     int iBox = i;
     // loop over neighbor boxes of iBox (some may be halo boxes)
@@ -53,9 +53,6 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
 
        ////////////////////////////////////////////////
 
-
- //      if(jBox < iBox) continue;
-
        int nJBox = bn[jTmp]->nAtoms;
        // loop over atoms in iBox
        for (int iOff=0; iOff<nIBox;iOff++)
@@ -63,7 +60,6 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
           // loop over atoms in jBox
           for (int jOff=0; jOff<nJBox; jOff++)
           {
-             if ((iBox==jBox))  continue;  // ToDo:: need to verify this condition
 
              double r2 = 0.0;
              real3 dr;
@@ -73,6 +69,7 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
                 r2+=dr[k]*dr[k];
              }
              if(r2>=rCut2) continue;
+             if (r2 <= 0.0) continue;
 
              real_t r = sqrt(r2);
 
@@ -82,7 +79,6 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
              for (int k=0; k<3; k++)
              {
                 b->atoms.f[iOff][k] -= (b->potDfEmbed[iOff]+bn[jTmp]->potDfEmbed[jOff])*dRho*dr[k]/r;
-  //              s->atoms->f[jOff][k] += (pot->dfEmbed[iOff]+pot->dfEmbed[jOff])*dRho*dr[k]/r;
              }
 
           } // loop over atoms in jBox
@@ -90,6 +86,7 @@ void computeForcefromNeighborsStep1 (int i, int j1, int j2,int j3,int j4,int j5,
     } // loop over neighbor boxes
 
 
+    KinEnergy(i, iter, b);
     cncPut_B(b1.handle, i, 4, 0, iter, context);
 
 }

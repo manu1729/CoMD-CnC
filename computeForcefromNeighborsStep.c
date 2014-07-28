@@ -18,7 +18,6 @@ void computeForcefromNeighborsStep (int i, int j1, int j2,int j3,int j4,int j5,i
     bn[18] = b19.item; bn[19] = b20.item; bn[20] = b21.item; bn[21] = b22.item; bn[22] = b23.item; bn[23] = b24.item; bn[24] = b25.item; bn[25] = b26.item; bn[26] = b27.item;
 
     force(i, iter,0, b, bn, p);  // need to remove 0
-    KinEnergy(i, iter, b);
 
     cncPut_B(b1.handle, i, 2, 0, iter, context);
 
@@ -27,7 +26,7 @@ void computeForcefromNeighborsStep (int i, int j1, int j2,int j3,int j4,int j5,i
 int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct eamPot *pot) {
 
     struct box *bn;
-    real_t rCut2 = b->potCutoff*b->potCutoff;
+    real_t rCut2  = pot->cutoff*pot->cutoff;
 
     // zero forces / energy / rho /rhoprime
     real_t etot = 0.0;
@@ -72,15 +71,11 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
        shift[0] = pbc[0] * b->globalExtent[0];
        shift[1] = pbc[1] * b->globalExtent[1];
        shift[2] = pbc[2] * b->globalExtent[2];
-
-
        ////////////////////////////////////////////////
 
 
 
        int jBox = bn->i;
-  //     if (jBox < iBox ) continue;
-
        int nJBox = bn->nAtoms;
        // loop over atoms in iBox
        for (int iOff=0; iOff<nIBox; iOff++)
@@ -88,8 +83,6 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
           // loop over atoms in jBox
           for (int jOff=0; jOff<nJBox; jOff++)
           {
-             if ( (iBox==jBox)) continue;  // ToDo : need to verify this condition
-
              double r2 = 0.0;
              real3 dr;
              for (int k=0; k<3; k++)
@@ -97,7 +90,10 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
                 dr[k]=b->atoms.r[iOff][k]-bn->atoms.r[jOff][k] - (shift[k]);  // ToDo: shift added, verify!
                 r2+=dr[k]*dr[k];
              }
+
+
              if(r2>rCut2) continue;
+             if (r2 <= 0.0) continue;
 
              double r = sqrt(r2);
 
@@ -106,27 +102,19 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
              interpolateNew(&(pot->phi), r, &phiTmp, &dPhi);
              interpolateNew(&(pot->rho), r, &rhoTmp, &dRho);
 
+
              for (int k=0; k<3; k++)
              {
                 b->atoms.f[iOff][k] -= dPhi*dr[k]/r;
-                //s->atoms->f[jOff][k] += dPhi*dr[k]/r;
              }
 
              // update energy terms
              // calculate energy contribution based on whether
              // the neighbor box is local or remote
-//             if (jBox < s->boxes->nLocalBoxes)
-                etot += phiTmp;
-//             else
-//                etot += 0.5*phiTmp;
+             etot += 0.5 * phiTmp;
 
              b->atoms.U[iOff] += 0.5*phiTmp;
-//             s->atoms->U[jOff] += 0.5*phiTmp;
-
-             // accumulate rhobar for each atom
              b->potRhobar[iOff] += rhoTmp;
-//             pot->rhobar[jOff] += rhoTmp;
-
           } // loop over atoms in jBox
        } // loop over atoms in iBox
     } // loop over neighbor boxes
@@ -134,8 +122,12 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
 
     // Compute Embedding Energy
     // loop over atoms in iBox
+    real_t psum = 0.0, rsum = 0.0; // Manu:: testing
     for (int iOff=0; iOff<nIBox; iOff++)
     {
+        rsum += b->atoms.f[iOff][0] + b->atoms.f[iOff][1] +b->atoms.f[iOff][2];
+        psum += b->atoms.p[iOff][0] + b->atoms.p[iOff][1] +b->atoms.p[iOff][2];
+
        real_t fEmbed, dfEmbed;
        interpolateNew(&(pot->f), b->potRhobar[iOff], &fEmbed, &dfEmbed);
        b->potDfEmbed[iOff] = dfEmbed;
@@ -143,128 +135,7 @@ int force(int i, int iter, int k, struct box *b, struct box *bnAll[27], struct e
        b->atoms.U[iOff] += fEmbed;
     }
 
-
- /*
-   real_t sigma = b->potSigma;
-   real_t epsilon = b->potEpsilon;
-   real_t rCut = b->potCutoff;
-   real_t rCut2 = rCut*rCut;
-   struct box *bn;
-
-   // zero forces and energy
-   real_t ePot = 0.0;
-
-   int iBox = i;
-
-   int nIBox = b->nAtoms;
-
-   real_t s6 = sigma*sigma*sigma*sigma*sigma*sigma;
-
-   real_t rCut6 = s6 / (rCut2*rCut2*rCut2);
-   real_t eShift = POT_SHIFT * rCut6 * (rCut6 - 1.0);
-
-
-   if ( nIBox == 0) {
-       b->ePot = ePot;
-       return 0;
-   }
-
-   int iii;
-   for (iii = 0; iii < 27; iii++) {
-       bn = bnAll[iii];
-
-       ////////////////////////////////////////////////
-       int ix,iy,iz,jx,jy,jz;
-       getTuple1(b, b->i, &ix, &iy, &iz);
-       getTuple1(bn, bn->i, &jx, &jy, &jz);
-       real_t pbc[3];
-       pbc[0] = pbc[1] = pbc[2] = 0.0;
-       if ((ix-jx) == (b->gridSize[0]-1))
-           pbc[0] = 1.0;
-       else if ((ix-jx) == -(b->gridSize[0]-1))
-           pbc[0] = -1.0;
-
-       if ((iy-jy) == (b->gridSize[1]-1))
-           pbc[1] = 1.0;
-       else if ((iy-jy) == -(b->gridSize[1]-1))
-           pbc[1] = -1.0;
-
-       if ((iz-jz) == (b->gridSize[2]-1))
-           pbc[2] = 1.0;
-       else if ((iz-jz) == -(b->gridSize[2]-1))
-           pbc[2] = -1.0;
-
-       real3 shift;
-
-       shift[0] = pbc[0] * b->globalExtent[0];
-       shift[1] = pbc[1] * b->globalExtent[1];
-       shift[2] = pbc[2] * b->globalExtent[2];
-
-
-       ////////////////////////////////////////////////
-
-
-
-
-       int jBox = bn->i;
-
-       assert(jBox >= 0);
-
-       int nJBox = bn->nAtoms;
-       if (nJBox == 0) {
-           continue;
-       }
-
-       real_t ri=0.0, rj = 0.0;
-       // loop over atoms in iBox
-       for (int iOff = 0; iOff < nIBox; iOff++) {
-           int iId = b->atoms.gid[iOff];
-
-           ri += b->atoms.r[iOff][0] + b->atoms.r[iOff][1] + b->atoms.r[iOff][2];
-
-           rj = 0.0;
-           // loop over atoms in jBox
-           for (int jOff = 0; jOff < nJBox; jOff++) {
-               real_t dr[3];
-               int jId = bn->atoms.gid[jOff];
-
-               rj += bn->atoms.r[jOff][0] + bn->atoms.r[jOff][1] + bn->atoms.r[jOff][2] +shift[0]+shift[1]+shift[2];
-
-               if (jBox < b->nLocalBoxes && jId == iId)
-                   continue; // don't double count local-local pairs.
-               real_t r2 = 0.0;
-               for (int m = 0; m < 3; m++) {
-                   dr[m] = b->atoms.r[iOff][m] - bn->atoms.r[jOff][m]-(shift[m]); ////////////////ToDo  need to check shift!!!!
-                   r2 += dr[m] * dr[m];
-               }
-
-               if (r2 > rCut2) {
-                   continue;
-               }
-
-               // Important note:
-               // from this point on r actually refers to 1.0/r
-               r2 = 1.0 / r2;
-               real_t r6 = s6 * (r2 * r2 * r2);
-               real_t eLocal = r6 * (r6 - 1.0) - eShift;
-               b->atoms.U[iOff] += eLocal; //0.5*eLocal;
-               ePot += 0.5 * eLocal;
-
-               // different formulation to avoid sqrt computation
-               real_t fr = -4.0 * epsilon * r6 * r2 * (12.0 * r6 - 6.0);
-               for (int m = 0; m < 3; m++) {
-                   b->atoms.f[iOff][m] -= dr[m] * fr;
-               }
-           } // loop over atoms in jBox
-       } // loop over atoms in iBox
-
-   }
-
-   ePot = ePot * 4.0 * epsilon;
-   b->ePot = ePot;
-   return 0;
-
-   */
+    b->ePot = etot;
 }
 
 int KinEnergy(int i, int iter, struct box *b) {
